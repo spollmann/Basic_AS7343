@@ -1,22 +1,24 @@
 # Basic_AS7343
-Driver for the AS7343 14-channel spectral sensor chip (like the found on the Mikroe Color 16 Click)
+Driver for the AS7343 14-channel spectral sensor chip (like the one found on the Mikroe Color 16 Click)
 AS7343 is a 14-Channel Multi-Spectral Sensor by the "ams OSRAM Group" (ams-osram.com)
 
 This project is based on the following repositories:
 1. Adafruit_AS7341 (https://github.com/adafruit/Adafruit_AS7341) - This is the Adafruit AS7341 11-Channel Spectral Sensor for Arduino
 2. Mikrosdk Click v2-Color16 driver (https://github.com/MikroElektronika/mikrosdk_click_v2/tree/master/clicks/color16) - AS7343 14-Channel Spectral sensor
 
-
 ## Description
-Provide a detailed description of your project here.
+Implements a Driver for the AS7343 14-channel spectral sensor chip (like on the Mikroe Color 16 Click).
+
+This library is adapted and made to feel similar to the Adafruit_as7341 library, with additions, and elements of the
+Mikroe color16 driver.  See copyright notices in the LICENSE file
 
 ## Installation
-Provide installation instructions here.
+Clone this repository under your Arduino/libraries folder
 
-## Usage
-Provide usage instructions here.
+## Dependencies
+* [Adafruit_BusIO](https://github.com/adafruit/Adafruit_BusIO)
 
-TODO:
+## TODO:
 Flicker Detection
 CUSTOM Smux
-others
+...and more
