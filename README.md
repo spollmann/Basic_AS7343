@@ -1,5 +1,5 @@
 # Basic_AS7343
-Driver for the AS7343 14-channel spectral sensor chip (like the one found on the Mikroe Color 16 Click)
+Arduino driver for the AS7343 14-channel spectral sensor chip (like the one found on the Mikroe Color 16 Click)
 AS7343 is a 14-Channel Multi-Spectral Sensor by the "ams OSRAM Group" (ams-osram.com)
 
 This project is based on the following repositories:
