@@ -19,6 +19,6 @@ Clone this repository under your Arduino/libraries folder
 * [Adafruit_BusIO](https://github.com/adafruit/Adafruit_BusIO)
 
 ## TODO:
-Flicker Detection
-CUSTOM Smux
-...and more
+-Flicker Detection <br />
+-CUSTOM Smux <br />
+...and more <br />
