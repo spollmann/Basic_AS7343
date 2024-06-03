@@ -17,7 +17,7 @@ This library is adapted and made to function similar to the Adafruit_AS7341 libr
 Mikroe color16 driver (default config function).  See copyright notices in the LICENSE file
 
 ## Installation
-Clone this repository under your Arduino/libraries folder
+Clone this repository into your Arduino/libraries folder
 
 ## Dependencies
 * [Adafruit_BusIO](https://github.com/adafruit/Adafruit_BusIO)
