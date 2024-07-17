@@ -69,11 +69,11 @@ void loop() {
   Serial.println(readings[11]);
   Serial.print("Raw F1 405nm : ");
   Serial.println(readings[12]);
-  Serial.print("Raw F5 550nm : ");
-  Serial.println(readings[13]);
   Serial.print("Raw F7 690nm : ");
-  Serial.println(readings[14]);
+  Serial.println(readings[13]);
   Serial.print("Raw F8 745nm : ");
+  Serial.println(readings[14]);
+  Serial.print("Raw F5 550nm : ");
   Serial.println(readings[15]);
   Serial.print("Raw 2X VIS 3 : ");
   Serial.println(readings[16]);
