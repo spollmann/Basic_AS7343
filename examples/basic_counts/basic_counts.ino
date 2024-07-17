@@ -72,11 +72,11 @@ void loop() {
   Serial.println(counts[11]);
   Serial.print("F1 405nm : ");
   Serial.println(counts[12]);
-  Serial.print("F5 550nm : ");
+  Serial.print("F7 690nm : "); 
   Serial.println(counts[13]);
-  Serial.print("F7 690nm : ");
-  Serial.println(counts[14]);
   Serial.print("F8 745nm : ");
+  Serial.println(counts[14]);
+  Serial.print("F5 550nm : "); 
   Serial.println(counts[15]);
   Serial.print("2X VIS 3 : ");
   Serial.println(counts[16]);
