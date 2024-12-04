@@ -139,10 +139,11 @@ bool Basic_AS7343::_init(int32_t sensor_id) {
     setBank(false);
     return false;
   }
-    setBank(false);
-
+  setBank(false);
+  powerEnable(false);
+  delay(100);
   powerEnable(true);
-//  delay(100);
+  delay(100);
   return setAutoChannelReadout(AS7343_18CHANNEL);
 }
 
@@ -202,11 +203,13 @@ uint16_t Basic_AS7343::getChannel(as7343_color_channel_t channel) {
 bool Basic_AS7343::readAllChannels(uint16_t *readings_buffer) {
   enableSpectralMeasurement(true); // Start integration
   delayForData(0);                 // I'll wait for you for all time
-
   Adafruit_BusIO_Register channel_data_reg =
       Adafruit_BusIO_Register(i2c_dev, AS7343_DATA_00_L, 2);
+  bool readStatus;
 
-  return channel_data_reg.read((uint8_t *)readings_buffer, 36);
+  readStatus = channel_data_reg.read((uint8_t *)readings_buffer, 36); 
+  enableSpectralMeasurement(false); // stop integration, so that next calls are not bufferred with data already.
+  return readStatus;
 }
 
 /**

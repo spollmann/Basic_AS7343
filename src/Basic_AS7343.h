@@ -20,6 +20,10 @@
  *
  * 	@section  HISTORY
  *
+ *     v0.3 - Third beta release.  Fix bufferring of data, when device is not powered off but a new MCU program runs
+ *            eg.  After programming, where readAllChannels return early, and with old Data readings.  Device is now "powered off" and
+ *                 "powered on" when .begin() is called.
+ *            Fix issue with readAllChannels in a loop sometimes returning quickly, and showing data from previous reads (buffered data)
  *     v0.2 - Second beta release.  Change LED Current functions, and add LED current functions that work with actual register settings.
  *     v0.1 - First beta release
  */
