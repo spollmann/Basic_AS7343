@@ -249,6 +249,7 @@ bool Basic_AS7343::checkReadingProgress() {
 
     channel_data_reg.read((uint8_t *)_channel_readings, 36);
     _readingState = AS7343_WAITING_DONE;
+    enableSpectralMeasurement(false);
     return true;
   }
 
