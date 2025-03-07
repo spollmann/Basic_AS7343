@@ -1,10 +1,4 @@
-/** This example will read all channels from the as7343.
-  * The raw ADC values will then be converted to basic counts
-  * according to the sensor's appliation note:
-  * 
-  * BasicCounts = RawSensorValue / ( Gain x IntegrationTime )
-  * 
-  * Finally, the converted values are printed out.
+/** This code demonstrates how to read the raw data from all 18 channels of the as7343.
   */
 #include "Basic_AS7343.h"
 
