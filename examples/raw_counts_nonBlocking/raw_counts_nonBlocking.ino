@@ -19,17 +19,16 @@ void setup() {
     while (1) { delay(10); }
   }
   //as7343.setAutoChannelReadout(AS7343_6CHANNEL);
-  //  as7343.setAutoChannelReadout(AS7343_12CHANNEL);
+  //as7343.setAutoChannelReadout(AS7343_12CHANNEL);
   as7343.setAutoChannelReadout(AS7343_18CHANNEL);
 
   as7343.setATIME(100);
   as7343.setASTEP(999);
   as7343.setGain(AS7343_GAIN_256X);
-  //  as7343.setGain(AS7343_GAIN_2048X);
 }
 
 bool doingMeasurement = false;
-int startMeasureTime;
+unsigned long startMeasureTime;
 void loop() {
   // put your main code here, to run repeatedly:
   if (!doingMeasurement) {
@@ -38,13 +37,12 @@ void loop() {
     doingMeasurement = true;
   } else {
     if (as7343.checkReadingProgress()) {
+      unsigned long readingTime = millis() - startMeasureTime;
       doingMeasurement = false;
       Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!");
       Serial.println("!!!!Our data is ready!!!!");
       Serial.print("Approx Reading Time (a 1,2,3 multiple of set integration time for 6,12,18channel read): ");
-//      Serial.print((float)(millis() - startMeasureTime)/1000.0);
-//      Serial.println(" s");
-      Serial.print(millis() - startMeasureTime);
+      Serial.print(readingTime);
       Serial.println(" ms");
       uint16_t readings[18];
       as7343.getAllChannels(readings);
@@ -88,7 +86,6 @@ void loop() {
       delay(5000);
     } else {
       //Do something, while waiting
-//      Serial.println("Data isn't ready yet");
     }
   }
 }
