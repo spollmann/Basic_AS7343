@@ -173,6 +173,10 @@ bool Basic_AS7343::setDefaultConfig() {
  * @return uint16_t The measured data for the currently configured sensor
  */
 uint16_t Basic_AS7343::readChannel(as7343_color_channel_t channel) {
+  //Read ASTATUS to latch all spectral data registers (0x95 to 0xB8)
+  Adafruit_BusIO_Register astatus_reg = Adafruit_BusIO_Register(i2c_dev, AS7343_ASTATUS);
+  astatus_reg.read();
+
   // each channel has two bytes, so offset by two for each next channel
   Adafruit_BusIO_Register channel_data_reg = Adafruit_BusIO_Register(
       i2c_dev, (AS7343_DATA_00_L + 2 * channel), 2, LSBFIRST);
