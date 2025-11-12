@@ -1,5 +1,12 @@
-/** This code demonstrates how to read the raw data from all 18 channels of the as7343.
-  */
+/* This code demonstrates how to use a hardware interrupt with the AS7343
+IMPORTANT NOTE, THERE IS A CONSTANT OVERHEAD OF ABOUT 0.375ms (on an Arduino Nano 33 BLE rev2) when clearing the interrupt status bit.
+So when you compute a theoretical maximum, vs actual frequency, that needs to be taken into account.
+Eg:  ATIME = 2, ASTEP = 499
+Integration time: (2+1)*(499+1)*0.00278ms = 4.17ms integration
+With constant light, that should max out at 239.8Hz, BUT
+in actual reality the integration time + overhead = 4.545ms
+or a rate of about 220Hz
+*/
 #include "Basic_AS7343.h"
 
 Basic_AS7343 as7343;
