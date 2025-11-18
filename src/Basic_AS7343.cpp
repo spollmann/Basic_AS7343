@@ -104,19 +104,35 @@ Basic_AS7343::~Basic_AS7343(void) {
  *            The Wire object to be used for I2C connections.
  *    @param  sensor_id
  *            The unique ID to differentiate the sensors from others
+ *    @param  fastMode
+ *            If true, puts the i2c bus into fast mode (400kbps), otherwise standard mode (by default) 100kbps
  *    @return True if initialization was successful, otherwise false.
  */
 bool Basic_AS7343::begin(uint8_t i2c_address, TwoWire *wire,
-                            int32_t sensor_id) {
+                            int32_t sensor_id, bool fast_mode) {
   if (i2c_dev) {
     delete i2c_dev; // remove old interface
   }
 
   i2c_dev = new Adafruit_I2CDevice(i2c_address, wire);
-
   if (!i2c_dev->begin()) {
     return false;
   }
+
+  if (fast_mode) {
+    // Fast Mode (400 kbps)
+    if (!i2c_dev->setSpeed(400000)){
+      Serial.println("AS7434 error setting 400kbps i2c speed...");
+      return false; 
+    }
+  } else {
+    // Standard Mode (100 kbps)
+    if (!i2c_dev->setSpeed(100000)){
+      Serial.println("AS7434 error setting 100kbps i2c speed...");
+      return false;
+    }
+  }
+  
   bool isInit;
   isInit = _init(sensor_id);
   return isInit;
@@ -526,6 +542,29 @@ bool Basic_AS7343::setHighThreshold(uint16_t high_threshold) {
       Adafruit_BusIO_Register(i2c_dev, AS7343_SP_HIGH_TH_L, 2, LSBFIRST);
   return sp_high_threshold_reg.write(high_threshold);
 }
+
+
+/**
+ * @brief Sets both Low and High spectral thresholds in a single I2C transaction.
+ * @param low_threshold The lower bound
+ * @param high_threshold The upper bound
+ * @return true: success false: failure
+ */
+bool Basic_AS7343::setLowAndHighThreshold(uint16_t low_threshold, uint16_t high_threshold) {  
+  Adafruit_BusIO_Register threshold_reg = 
+      Adafruit_BusIO_Register(i2c_dev, AS7343_SP_LOW_TH_L, 4, LSBFIRST);
+
+  uint8_t data[4];
+  
+  // Fill buffer (Little Endian)
+  data[0] = low_threshold & 0xFF;          // Low LSB
+  data[1] = (low_threshold >> 8) & 0xFF;   // Low MSB
+  data[2] = high_threshold & 0xFF;         // High LSB
+  data[3] = (high_threshold >> 8) & 0xFF;  // High MSB
+
+  return threshold_reg.write(data, 4);
+}
+
 
 /**
  * @brief Returns the current high thighreshold for spectral measurements

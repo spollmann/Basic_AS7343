@@ -255,7 +255,7 @@ public:
   ~Basic_AS7343();
 
   bool begin(uint8_t i2c_addr = AS7343_I2CADDR_DEFAULT, TwoWire *wire = &Wire,
-             int32_t sensor_id = 0);
+             int32_t sensor_id = 0, bool fast_mode = false);
   bool setDefaultConfig();
   bool setASTEP(uint16_t astep_value);
   bool setATIME(uint8_t atime_value);
@@ -295,6 +295,7 @@ public:
 
   bool setHighThreshold(uint16_t high_threshold);
   bool setLowThreshold(uint16_t low_threshold);
+  bool setLowAndHighThreshold(uint16_t low_threshold, uint16_t high_threshold);
 
   uint16_t getHighThreshold(void);
   uint16_t getLowThreshold(void);
