@@ -186,18 +186,43 @@ bool Basic_AS7343::setDefaultConfig() {
  * @brief Returns the data for a given channel, read from the register directly
  *
  * @param channel The Color channel to read
+ * @param atomic If true, the function will read the data in a single atomic latching operation
  * @return uint16_t The measured data for the currently configured sensor
  */
-uint16_t Basic_AS7343::readChannel(as7343_color_channel_t channel) {
-  //Read ASTATUS to latch all spectral data registers (0x95 to 0xB8)
-  Adafruit_BusIO_Register astatus_reg = Adafruit_BusIO_Register(i2c_dev, AS7343_ASTATUS);
-  astatus_reg.read();
+uint16_t Basic_AS7343::readChannel(as7343_color_channel_t channel, bool atomic) {
+  if (atomic) {
+    // Read 37 bytes: 1 byte ASTATUS (to latch) + 36 bytes of data
+    // Reading 0x94 (ASTATUS) latches the data at 0x95...0xB8
+    Adafruit_BusIO_Register data_reg = Adafruit_BusIO_Register(i2c_dev, AS7343_ASTATUS, 2); 
 
-  // each channel has two bytes, so offset by two for each next channel
-  Adafruit_BusIO_Register channel_data_reg = Adafruit_BusIO_Register(
-      i2c_dev, (AS7343_DATA_00_L + 2 * channel), 2, LSBFIRST);
+    uint8_t buffer[37];
+    
+    // Perform the burst read
+    if (!data_reg.read(buffer, 37)) {
+      return 0; // Return 0 on I2C failure
+    }
 
-  return channel_data_reg.read();
+    // Update internal state with the latched snapshot
+    // ASTATUS is in buffer[0]
+    _last_astatus = buffer[0];
+    
+    // Copy the 36 bytes of data (buffer[1] to buffer[36]) to the output buffer
+    memcpy(_channel_readings, &buffer[1], 36);
+
+    // Return the specific channel requested
+    return _channel_readings[channel];
+  } else {
+    // Faster, but technically "unsafe" as data could change between status read and data read
+    // Read ASTATUS to latch all spectral data registers (0x95 to 0xB8)
+    Adafruit_BusIO_Register astatus_reg = Adafruit_BusIO_Register(i2c_dev, AS7343_ASTATUS);
+    _last_astatus = astatus_reg.read();
+
+    // each channel has two bytes, so offset by two for each next channel
+    Adafruit_BusIO_Register channel_data_reg = Adafruit_BusIO_Register(
+        i2c_dev, (AS7343_DATA_00_L + 2 * channel), 2, LSBFIRST);
+
+    return channel_data_reg.read();
+  }
 }
 
 /**
@@ -247,7 +272,8 @@ bool Basic_AS7343::readAllChannels(uint16_t *readings_buffer) {
  * @return true: success false: failure (a bit arbitrary)
  */
 bool Basic_AS7343::startReading(void) {
-/*  enableSpectralMeasurement(false); // Stop any effective measurement
+/*  see if this helps with 6 mux old data issue (I think it is a mux problem, not library issue)
+enableSpectralMeasurement(false); // Stop any effective measurement
   
   // Flush any existing data
   if (getIsDataReady()) {
