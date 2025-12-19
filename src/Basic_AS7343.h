@@ -316,6 +316,8 @@ public:
   bool spectralLowTriggered(void);
   bool spectralHighTriggered(void);
 
+  uint8_t getLastReadStatus(void);
+
   void disableAll(void);
 
   bool getIsDataReady();
@@ -324,6 +326,7 @@ public:
 protected:
   virtual bool _init(int32_t sensor_id);
   uint8_t last_spectral_int_source = 0; ///< The value of the last reading of the spectral interrupt source register
+  uint8_t _last_astatus = 0; ///< The value of the ASTATUS register from the last readAllChannels call
 
   Adafruit_I2CDevice *i2c_dev = NULL; ///< Pointer to I2C bus interface
 

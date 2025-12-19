@@ -223,12 +223,20 @@ uint16_t Basic_AS7343::getChannel(as7343_color_channel_t channel) {
 bool Basic_AS7343::readAllChannels(uint16_t *readings_buffer) {
   enableSpectralMeasurement(true); // Start integration
   delayForData(0);                 // I'll wait for you for all time
-  Adafruit_BusIO_Register channel_data_reg =
-      Adafruit_BusIO_Register(i2c_dev, AS7343_DATA_00_L, 2);
-  bool readStatus;
 
-  readStatus = channel_data_reg.read((uint8_t *)readings_buffer, 36); 
-  enableSpectralMeasurement(false); // stop integration, so that next calls are not bufferred with data already.
+  // Read 37 bytes: 1 byte ASTATUS (to latch) + 36 bytes of data
+  // Reading 0x94 (ASTATUS) latches the data at 0x95...0xB8
+  Adafruit_BusIO_Register data_reg = Adafruit_BusIO_Register(i2c_dev, AS7343_ASTATUS, 2); // Start at 0x94
+
+  uint8_t buffer[37];
+  bool readStatus = data_reg.read(buffer, 37);
+
+  if (readStatus) {
+     _last_astatus = buffer[0];
+     memcpy(readings_buffer, &buffer[1], 36);
+  }
+  
+  enableSpectralMeasurement(false); // stop integration
   return readStatus;
 }
 
@@ -239,6 +247,17 @@ bool Basic_AS7343::readAllChannels(uint16_t *readings_buffer) {
  * @return true: success false: failure (a bit arbitrary)
  */
 bool Basic_AS7343::startReading(void) {
+/*  enableSpectralMeasurement(false); // Stop any effective measurement
+  
+  // Flush any existing data
+  if (getIsDataReady()) {
+      // Dummy read to clear status and fifo
+      // Reading 0x94 (ASTATUS) latches the data at 0x95...0xB8
+      Adafruit_BusIO_Register data_reg = Adafruit_BusIO_Register(i2c_dev, AS7343_ASTATUS, 2); 
+      uint8_t buffer[37];
+      data_reg.read(buffer, 37);
+  }
+*/
   _readingState = AS7343_WAITING_START; // Start the measurement please
   checkReadingProgress();               // Call the check function to start it
   return true;
@@ -264,10 +283,27 @@ bool Basic_AS7343::checkReadingProgress() {
 
   if (_readingState == AS7343_WAITING_DATA) // Check of getIsDataRead() is already done
   {
-    Adafruit_BusIO_Register channel_data_reg =
-        Adafruit_BusIO_Register(i2c_dev, AS7343_DATA_00_L, 2);
+    // Read 37 bytes: 1 byte ASTATUS (to latch) + 36 bytes of data (18 channels * 2 bytes)
+    // Reading 0x94 (ASTATUS) latches the data at 0x95...0xB8
+    Adafruit_BusIO_Register data_reg = Adafruit_BusIO_Register(i2c_dev, AS7343_ASTATUS, 2); // Address 0x94
+    
+    // Create a buffer for 37 bytes (ASTATUS + 36 data bytes)
+    // We can't read directly into readings_buffer because of the offset and ASTATUS byte
+    uint8_t buffer[37];
+    
+    // Read 37 bytes
+    if (!data_reg.read(buffer, 37)) {
+      return false;
+    }
 
-    channel_data_reg.read((uint8_t *)_channel_readings, 36);
+
+    // ASTATUS is in buffer[0]
+    _last_astatus = buffer[0];
+    
+    // Copy the 36 bytes of data (buffer[1] to buffer[36]) to the output buffer
+    // This assumes the platform is Little Endian like the sensor (standard for Arduino)
+    memcpy(_channel_readings, &buffer[1], 36); 
+
     _readingState = AS7343_WAITING_DONE;
     enableSpectralMeasurement(false);
     return true;
@@ -733,6 +769,16 @@ bool Basic_AS7343::spectralLowTriggered(void) {
  */
 bool Basic_AS7343::spectralHighTriggered(void) {
   return (last_spectral_int_source & AS7343_SPECTRAL_INT_HIGH_MSK) > 0;
+}
+
+/**
+ * @brief Returns the ASTATUS value captured during the last readAllChannels call.
+ * This indicates validity, saturation, and gain for that specific dataset.
+ *
+ * @return uint8_t The ASTATUS register value
+ */
+uint8_t Basic_AS7343::getLastReadStatus(void) {
+  return _last_astatus;
 }
 
 /**
