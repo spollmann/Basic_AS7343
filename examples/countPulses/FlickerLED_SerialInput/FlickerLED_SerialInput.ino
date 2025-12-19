@@ -1,3 +1,6 @@
+/* Flash an LED on a arduino nano 33 ble sense rev2 (nrf chip).  Rate can be set using serial input. */
+/* This code only tested on an nordic chip */
+
 #define LED_PIN_BIT (1 << 13) 
 #define EXTERNAL_LED_PIN_BIT (1 << 14)
 
